@@ -41,7 +41,9 @@ If you fix a bug or want to add/improve a feature,
 and it's alligned to the focus (merging with ease) of this tool, 
 I will be glad to accept your PR.  
 
-Thanks
+### Thanks
+
+This tool was made using the beautiful [Unidoc](https://unidoc.io/) library. Thanks to **Unidoc**.
 
 ---
 > "This is the Book about which there is no doubt, a guidance for those conscious of Allah" - [Al-Quran](http://quran.com)
