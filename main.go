@@ -19,7 +19,7 @@ func init() {
 
 func main() {
 	if len(os.Args) < 3 {
-		fmt.Printf("Requires at least 3 arguments: output_path and 2 input paths(and optional page numbers) \n")
+		fmt.Printf("Requires at least 3 arguments: output_path and 2 input paths (and optional page numbers) \n")
 		fmt.Printf("Usage: merge2pdf output.pdf input1.pdf input2.pdf~1,2,3 ...\n")
 		os.Exit(0)
 	}

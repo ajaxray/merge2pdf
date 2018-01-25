@@ -6,7 +6,15 @@ It will not convert PDF pages (with texts, images, forms) into flat image, every
 ### Install
 
 It's just a single binary file, no external dependencies. 
-Just download the executable from Releases page and put it in your (Unix) systems bin directory.
+Just download the [executable of latest releases](https://github.com/ajaxray/merge2pdf/releases/download/v0.0.1/merge2pdf) and give it execute permission.
+```bash
+sudo chmod +x merge2pdf
+```
+
+If you want to install it globally (run from any directory of your system), put it in your systems $PATH directory. For example -
+```bash
+sudo mv merge2pdf /usr/local/bin/merge2pdf
+```
 Done! 
 
 ### How to use
@@ -38,12 +46,12 @@ merge2pdf output.pdf "With Space.pdf" "without-space.pdf" "with space and pages.
 ### Contribute
 
 If you fix a bug or want to add/improve a feature, 
-and it's alligned to the focus (merging with ease) of this tool, 
-I will be glad to accept your PR.  
+and it's alligned with the focus (merging with ease) of this tool, 
+I will be glad to accept your PR. :) 
 
 ### Thanks
 
-This tool was made using the beautiful [Unidoc](https://unidoc.io/) library. Thanks to **Unidoc**.
+This tool was made using the beautiful [Unidoc](https://unidoc.io/) library. Thanks and ❤️ to **Unidoc**.
 
 ---
 > "This is the Book about which there is no doubt, a guidance for those conscious of Allah" - [Al-Quran](http://quran.com)
