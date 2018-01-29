@@ -6,13 +6,11 @@ It will not convert PDF pages (with texts, images, forms) into flat image, every
 ### Install
 
 It's just a single binary file, no external dependencies. 
-Just download the appropriate version of [executable from latest release](https://github.com/ajaxray/merge2pdf/releases/download/v0.0.1/merge2pdf) for your OS. Then rename and give it execute permission.
+Just download the appropriate version of [executable from latest release](https://github.com/ajaxray/merge2pdf/releases) for your OS. Then rename and give it execute permission.
 ```bash
 mv merge2pdf_linux-amd64 merge2pdf  
 sudo chmod +x merge2pdf
 ```
-
-Note: In unix based systems, you may use `uname -a` to get the architecture of your OS. And for windows, use `wmic cpu get AddressWidth`.
 
 If you want to install it globally (run from any directory of your system), put it in your systems $PATH directory.
 ```bash
