@@ -14,4 +14,5 @@
 .glide/
 
 # Project specific
+builds/
 merge2pdf
