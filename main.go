@@ -3,33 +3,52 @@ package main
 import (
 	"errors"
 	"fmt"
-	"io"
 	"os"
 	"strconv"
 	"strings"
 
+	flag "github.com/ogier/pflag"
 	unicommon "github.com/unidoc/unidoc/common"
-	pdf "github.com/unidoc/unidoc/pdf/model"
+	"github.com/unidoc/unidoc/pdf/creator"
+)
+
+var size, margin string
+var scaleH, scaleW bool
+
+const (
+	DefaultSize   = "IMG-SIZE"
+	DefaultMargin = "1,1,1,1"
 )
 
 func init() {
 	// Debug log level.
 	unicommon.SetLogger(unicommon.NewConsoleLogger(unicommon.LogLevelDebug))
+
+	flag.StringVarP(&size, "size", "s", DefaultSize, "Resize image pages to print size. One of A4, A3, Legal or Letter.")
+	flag.StringVarP(&margin, "margin", "m", DefaultMargin, "Comma separated numbers for left, right, top, bottm side margin in inch.")
+	flag.BoolVarP(&scaleW, "scale-width", "w", false, "Scale Image to page width. Only if --size specified.")
+	flag.BoolVarP(&scaleH, "scale-height", "h", false, "Scale Image to page height. Only if --size specified.")
+
+	flag.Usage = func() {
+		fmt.Println("Requires at least 3 arguments: output_path and 2 input paths (and optional page numbers)")
+		fmt.Println("Usage: merge2pdf output.pdf input1.pdf input2.pdf~1,2,3 input3.jpg /path/to/dir ...")
+		flag.PrintDefaults()
+	}
 }
 
 func main() {
-	if len(os.Args) < 3 {
-		fmt.Printf("Requires at least 3 arguments: output_path and 2 input paths (and optional page numbers) \n")
-		fmt.Printf("Usage: merge2pdf output.pdf input1.pdf input2.pdf~1,2,3 ...\n")
+	flag.Parse()
+	args := flag.Args()
+	if len(args) < 2 {
+		flag.Usage()
 		os.Exit(0)
 	}
 
-	outputPath := os.Args[1]
+	outputPath := args[0]
 	inputPaths := []string{}
 	inputPages := [][]int{}
 
-	// Sanity check the input arguments.
-	for _, arg := range os.Args[2:] {
+	for _, arg := range flag.Args()[1:] {
 		//inputPaths = append(inputPaths, arg)
 
 		fileInputParts := strings.Split(arg, "~")
@@ -50,6 +69,7 @@ func main() {
 		inputPages = append(inputPages, pages)
 	}
 
+	// fmt.Println(inputPaths)
 	// fmt.Println(inputPages)
 	// os.Exit(1)
 
@@ -63,7 +83,7 @@ func main() {
 }
 
 func mergePdf(inputPaths []string, inputPages [][]int, outputPath string) error {
-	pdfWriter := pdf.NewPdfWriter()
+	c := creator.New()
 
 	for i, inputPath := range inputPaths {
 
@@ -75,93 +95,32 @@ func mergePdf(inputPaths []string, inputPages [][]int, outputPath string) error 
 
 		fileType, typeError := getFileType(f)
 		if typeError != nil {
-			return nil
+			return typeError
 		}
 
 		if fileType == "directory" {
 			// @TODO : Read all files in directory
 			return errors.New(inputPath + " is a drectory.")
 		} else if fileType == "application/pdf" {
-			err := addPdfPages(f, inputPages[i], &pdfWriter)
-			if err != nil {
-				return err
-			}
-		} else if ok, _ := in_array(fileType, []string{"image/jpg", "image/jpeg", "image/png"}); ok {
-			return errors.New(inputPath + " Images is not supproted yet.")
+			err = addPdfPages(f, inputPages[i], c)
+		} else if fileType[:6] == "image/" {
+			err = addImage(inputPath, c)
+
+			fmt.Println("%+v", pageMargin)
+			fmt.Println("%+v", pageSize)
+
+		} else {
+			err = errors.New("Unsupported type:" + inputPath)
 		}
 
-	}
-
-	fWrite, err := os.Create(outputPath)
-	if err != nil {
-		return err
-	}
-	defer fWrite.Close()
-
-	err = pdfWriter.Write(fWrite)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func getReader(rs io.ReadSeeker) (*pdf.PdfReader, error) {
-
-	pdfReader, err := pdf.NewPdfReader(rs)
-	if err != nil {
-		return nil, err
-	}
-
-	isEncrypted, err := pdfReader.IsEncrypted()
-	if err != nil {
-		return nil, err
-	}
-
-	if isEncrypted {
-		auth, err := pdfReader.Decrypt([]byte(""))
-		if err != nil {
-			return nil, err
-		}
-		if !auth {
-			return nil, errors.New("Cannot merge encrypted, password protected document")
-		}
-	}
-
-	return pdfReader, nil
-}
-
-func addPdfPages(file io.ReadSeeker, pages []int, writer *pdf.PdfWriter) error {
-	pdfReader, err := getReader(file)
-	if err != nil {
-		return err
-	}
-
-	if len(pages) > 0 {
-		for _, pageNo := range pages {
-			if page, pageErr := pdfReader.GetPage(pageNo); pageErr != nil {
-				return pageErr
-			} else {
-				err = writer.AddPage(page)
-			}
-		}
-	} else {
-		numPages, err := pdfReader.GetNumPages()
 		if err != nil {
 			return err
 		}
-		for i := 0; i < numPages; i++ {
-			pageNum := i + 1
+	}
 
-			page, err := pdfReader.GetPage(pageNum)
-			if err != nil {
-				return err
-			}
-
-			if err = writer.AddPage(page); err != nil {
-				return err
-			}
-		}
+	err := c.WriteToFile(outputPath)
+	if err != nil {
+		return err
 	}
 
 	return nil
