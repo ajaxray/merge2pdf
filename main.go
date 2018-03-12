@@ -13,7 +13,7 @@ import (
 )
 
 var size, margin string
-var scaleH, scaleW bool
+var scaleH, scaleW, verbose bool
 
 const (
 	DefaultSize   = "IMG-SIZE"
@@ -21,13 +21,12 @@ const (
 )
 
 func init() {
-	// Debug log level.
-	unicommon.SetLogger(unicommon.NewConsoleLogger(unicommon.LogLevelDebug))
 
 	flag.StringVarP(&size, "size", "s", DefaultSize, "Resize image pages to print size. One of A4, A3, Legal or Letter.")
 	flag.StringVarP(&margin, "margin", "m", DefaultMargin, "Comma separated numbers for left, right, top, bottm side margin in inch.")
 	flag.BoolVarP(&scaleW, "scale-width", "w", false, "Scale Image to page width. Only if --size specified.")
 	flag.BoolVarP(&scaleH, "scale-height", "h", false, "Scale Image to page height. Only if --size specified.")
+	flag.BoolVarP(&verbose, "verbose", "v", false, "Display debug info.")
 
 	flag.Usage = func() {
 		fmt.Println("Requires at least 3 arguments: output_path and 2 input paths (and optional page numbers)")
@@ -42,6 +41,10 @@ func main() {
 	if len(args) < 2 {
 		flag.Usage()
 		os.Exit(0)
+	}
+
+	if verbose {
+		unicommon.SetLogger(unicommon.NewConsoleLogger(unicommon.LogLevelDebug))
 	}
 
 	outputPath := args[0]
@@ -79,7 +82,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	fmt.Printf("Complete, see output file: %s\n", outputPath)
+	debugInfo(fmt.Sprintf("Complete, see output file: %s", outputPath))
 }
 
 func mergePdf(inputPaths []string, inputPages [][]int, outputPath string) error {
@@ -105,10 +108,6 @@ func mergePdf(inputPaths []string, inputPages [][]int, outputPath string) error 
 			err = addPdfPages(f, inputPages[i], c)
 		} else if fileType[:6] == "image/" {
 			err = addImage(inputPath, c)
-
-			fmt.Println("%+v", pageMargin)
-			fmt.Println("%+v", pageSize)
-
 		} else {
 			err = errors.New("Unsupported type:" + inputPath)
 		}

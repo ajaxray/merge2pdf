@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"net/http"
 	"os"
 	"reflect"
@@ -41,5 +42,11 @@ func getFileType(file *os.File) (string, error) {
 
 		// Always returns a valid content-type and "application/octet-stream" if no others seemed to match.
 		return http.DetectContentType(buffer), nil
+	}
+}
+
+func debugInfo(message string) {
+	if verbose {
+		log.Println(message)
 	}
 }

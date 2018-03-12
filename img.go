@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"strconv"
 	"strings"
@@ -14,6 +15,7 @@ var sizeHasSet, merginHasSet = false, false
 
 // func addImageToPdf(inputPath string, outputPath string, imagePath string, pageNum int, xPos float64, yPos float64, iwidth float64) error {
 func addImage(filePath string, c *creator.Creator) error {
+	debugInfo(fmt.Sprintf("Adding image: %s", filePath))
 
 	img, err := creator.NewImageFromFile(filePath)
 	if err != nil {

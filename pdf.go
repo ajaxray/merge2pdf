@@ -2,7 +2,9 @@ package main
 
 import (
 	"errors"
+	"fmt"
 	"io"
+	"os"
 
 	"github.com/unidoc/unidoc/pdf/creator"
 	pdf "github.com/unidoc/unidoc/pdf/model"
@@ -33,13 +35,14 @@ func getReader(rs io.ReadSeeker) (*pdf.PdfReader, error) {
 	return pdfReader, nil
 }
 
-func addPdfPages(file io.ReadSeeker, pages []int, c *creator.Creator) error {
+func addPdfPages(file *os.File, pages []int, c *creator.Creator) error {
 	pdfReader, err := getReader(file)
 	if err != nil {
 		return err
 	}
 
 	if len(pages) > 0 {
+		debugInfo(fmt.Sprintf("Adding all pages of PDF: %s", file.Name()))
 		for _, pageNo := range pages {
 			if page, pageErr := pdfReader.GetPage(pageNo); pageErr != nil {
 				return pageErr
@@ -60,6 +63,7 @@ func addPdfPages(file io.ReadSeeker, pages []int, c *creator.Creator) error {
 				return err
 			}
 
+			debugInfo(fmt.Sprintf("Adding page %d of PDF: %s", pageNum, file.Name()))
 			if err = c.AddPage(page); err != nil {
 				return err
 			}
