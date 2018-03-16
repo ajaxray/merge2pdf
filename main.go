@@ -13,30 +13,40 @@ import (
 )
 
 var size, margin string
-var scaleH, scaleW, verbose bool
+var scaleH, scaleW, verbose, version bool
+var JPEGQuality int
 
 const (
 	DefaultSize   = "IMG-SIZE"
 	DefaultMargin = "1,1,1,1"
+	VERSION       = "1.0.1"
 )
 
 func init() {
 
 	flag.StringVarP(&size, "size", "s", DefaultSize, "Resize image pages to print size. One of A4, A3, Legal or Letter.")
 	flag.StringVarP(&margin, "margin", "m", DefaultMargin, "Comma separated numbers for left, right, top, bottm side margin in inch.")
-	flag.BoolVarP(&scaleW, "scale-width", "w", false, "Scale Image to page width. Only if --size specified.")
-	flag.BoolVarP(&scaleH, "scale-height", "h", false, "Scale Image to page height. Only if --size specified.")
+	flag.BoolVar(&scaleW, "scale-width", false, "Scale Image to page width. Only if --size specified.")
+	flag.BoolVar(&scaleH, "scale-height", false, "Scale Image to page height. Only if --size specified.")
+	flag.IntVar(&JPEGQuality, "jpeg-quality", 100, "Optimize JPEG Quality.")
 	flag.BoolVarP(&verbose, "verbose", "v", false, "Display debug info.")
+	flag.BoolVarP(&version, "version", "V", false, "Display debug info.")
 
 	flag.Usage = func() {
-		fmt.Println("Requires at least 3 arguments: output_path and 2 input paths (and optional page numbers)")
-		fmt.Println("Usage: merge2pdf output.pdf input1.pdf input2.pdf~1,2,3 input3.jpg /path/to/dir ...")
+		fmt.Println("merge2pdf [options...] <output_file> <input_file> [<input_file>...]")
+		fmt.Println("<output_file> should be a PDF file and <input_file> can be PDF or image files. PDF files can have specific page numbers to merge.")
+		fmt.Println("Example: merge2pdf output.pdf input1.pdf input_pages.pdf~1,2,3 input3.jpg /path/to/input.png ...")
 		flag.PrintDefaults()
 	}
 }
 
 func main() {
 	flag.Parse()
+	if version {
+		fmt.Println("merge2pdf version ", VERSION)
+		os.Exit(0)
+	}
+
 	args := flag.Args()
 	if len(args) < 2 {
 		flag.Usage()
@@ -107,7 +117,7 @@ func mergePdf(inputPaths []string, inputPages [][]int, outputPath string) error 
 		} else if fileType == "application/pdf" {
 			err = addPdfPages(f, inputPages[i], c)
 		} else if fileType[:6] == "image/" {
-			err = addImage(inputPath, c)
+			err = addImage(inputPath, c, fileType)
 		} else {
 			err = errors.New("Unsupported type:" + inputPath)
 		}

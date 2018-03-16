@@ -48,6 +48,9 @@ merge2pdf -s A3 -m .5,.5,1,1 output.pdf image1.jpg image2.jpg
 # Scale images to page width, with aspect ratio
 # To scale to height, use --scale-height
 merge2pdf -s A3 -m .5,.5,1,1 --scale-width output.pdf image1.jpg image2.jpg
+
+# For JPEG, you can set optimized quality
+merge2pdf -m 0,0,0,0 --jpeg-quality=80 output.pdf image1.jpg image2.jpg
 ```
 _Note: When adding images and PDFs together, these options will effect ONLY Image pages._
 

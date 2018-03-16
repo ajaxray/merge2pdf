@@ -6,6 +6,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/unidoc/unidoc/pdf/core"
 	"github.com/unidoc/unidoc/pdf/creator"
 )
 
@@ -14,7 +15,7 @@ var pageSize creator.PageSize
 var sizeHasSet, merginHasSet = false, false
 
 // func addImageToPdf(inputPath string, outputPath string, imagePath string, pageNum int, xPos float64, yPos float64, iwidth float64) error {
-func addImage(filePath string, c *creator.Creator) error {
+func addImage(filePath string, c *creator.Creator, fileType string) error {
 	debugInfo(fmt.Sprintf("Adding image: %s", filePath))
 
 	img, err := creator.NewImageFromFile(filePath)
@@ -22,6 +23,8 @@ func addImage(filePath string, c *creator.Creator) error {
 		return err
 	}
 
+	// The following funcs must be called in sequence
+	setEncoding(img, fileType)
 	setMargin(img, c)
 	setSize(img, c)
 
@@ -82,5 +85,22 @@ func setSize(img *creator.Image, c *creator.Creator) {
 		}
 	}
 
+	debugInfo(fmt.Sprintf("Created Page Size: %v", pageSize))
 	c.SetPageSize(pageSize)
+}
+
+// Set appropriate encoding for JPEG and TIFF
+// MUST be called before changing image size
+func setEncoding(img *creator.Image, fileType string) {
+
+	switch fileType {
+	case "image/jpeg":
+		debugInfo(fmt.Sprintf("JPEG found. Setting encoding to DCTEncoder."))
+		encoder := core.NewDCTEncoder()
+		encoder.Quality = JPEGQuality
+		// Encoder dimensions must match the raw image data dimensions.
+		encoder.Width = int(img.Width())
+		encoder.Height = int(img.Height())
+		img.SetEncoder(encoder)
+	}
 }
