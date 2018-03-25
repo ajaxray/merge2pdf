@@ -6,32 +6,35 @@ import (
 	"strconv"
 	"strings"
 
+	"os"
+
 	"github.com/unidoc/unidoc/pdf/core"
 	"github.com/unidoc/unidoc/pdf/creator"
+	"golang.org/x/image/tiff"
 )
 
 var pageMargin [4]float64
 var pageSize creator.PageSize
 var sizeHasSet, marginHasSet = false, false
+var tiffExts = []string{".tiff", ".TIFF", ".tif", ".TIF"}
 
 type ImgSource struct {
 	source
 }
 
 func (s ImgSource) MergeTo(c *creator.Creator) error {
-	return addImage(s.path, c, s.mime)
+	debugInfo(fmt.Sprintf("Adding Image: %+v", s.source))
+	return addImage(s.source, c)
 }
 
-func addImage(filePath string, c *creator.Creator, fileType string) error {
-	debugInfo(fmt.Sprintf("Adding image: %s", filePath))
-
-	img, err := creator.NewImageFromFile(filePath)
+func addImage(s source, c *creator.Creator) error {
+	img, err := createImage(s, c)
 	if err != nil {
 		return err
 	}
 
 	// The following funcs must be called in sequence
-	setEncoding(img, fileType)
+	setEncoding(img, s)
 	setMargin(img, c)
 	setSize(img, c)
 
@@ -42,6 +45,19 @@ func addImage(filePath string, c *creator.Creator, fileType string) error {
 	}
 
 	return nil
+}
+
+func createImage(s source, c *creator.Creator) (*creator.Image, error) {
+	if in_array(s.ext, tiffExts) {
+		f, _ := os.Open(s.path)
+		i, err := tiff.Decode(f)
+		if err != nil {
+			log.Fatalln(err.Error())
+		}
+		return creator.NewImageFromGoImage(i)
+	}
+
+	return creator.NewImageFromFile(s.path)
 }
 
 func setMargin(img *creator.Image, c *creator.Creator) {
@@ -99,9 +115,9 @@ func setSize(img *creator.Image, c *creator.Creator) {
 
 // Set appropriate encoding for JPEG and TIFF
 // MUST be called before changing image size
-func setEncoding(img *creator.Image, fileType string) {
+func setEncoding(img *creator.Image, s source) {
 
-	switch fileType {
+	switch s.mime {
 	case "image/jpeg":
 		debugInfo(fmt.Sprintf("JPEG found. Setting encoding to DCTEncoder."))
 		encoder := core.NewDCTEncoder()

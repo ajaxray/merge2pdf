@@ -15,7 +15,11 @@ type PDFSource struct {
 }
 
 func (s PDFSource) MergeTo(c *creator.Creator) error {
+	debugInfo(fmt.Sprintf("Adding PDF: %+v", s.source))
+
 	f, _ := os.Open(s.path)
+	defer f.Close()
+
 	return addPdfPages(f, s.pages, c)
 }
 
