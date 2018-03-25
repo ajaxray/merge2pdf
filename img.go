@@ -12,9 +12,16 @@ import (
 
 var pageMargin [4]float64
 var pageSize creator.PageSize
-var sizeHasSet, merginHasSet = false, false
+var sizeHasSet, marginHasSet = false, false
 
-// func addImageToPdf(inputPath string, outputPath string, imagePath string, pageNum int, xPos float64, yPos float64, iwidth float64) error {
+type ImgSource struct {
+	source
+}
+
+func (s ImgSource) MergeTo(c *creator.Creator) error {
+	return addImage(s.path, c, s.mime)
+}
+
 func addImage(filePath string, c *creator.Creator, fileType string) error {
 	debugInfo(fmt.Sprintf("Adding image: %s", filePath))
 
@@ -39,7 +46,7 @@ func addImage(filePath string, c *creator.Creator, fileType string) error {
 
 func setMargin(img *creator.Image, c *creator.Creator) {
 
-	if !merginHasSet {
+	if !marginHasSet {
 		for i, m := range strings.Split(margin, ",") {
 			floatVal, err := strconv.ParseFloat(m, 64)
 			if err != nil {
@@ -48,6 +55,7 @@ func setMargin(img *creator.Image, c *creator.Creator) {
 
 			pageMargin[i] = floatVal * creator.PPI
 		}
+		marginHasSet = true
 	}
 
 	c.SetPageMargins(pageMargin[0], pageMargin[1], pageMargin[2], pageMargin[3])

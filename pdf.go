@@ -10,6 +10,15 @@ import (
 	pdf "github.com/unidoc/unidoc/pdf/model"
 )
 
+type PDFSource struct {
+	source
+}
+
+func (s PDFSource) MergeTo(c *creator.Creator) error {
+	f, _ := os.Open(s.path)
+	return addPdfPages(f, s.pages, c)
+}
+
 func getReader(rs io.ReadSeeker) (*pdf.PdfReader, error) {
 
 	pdfReader, err := pdf.NewPdfReader(rs)
