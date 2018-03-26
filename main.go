@@ -31,8 +31,8 @@ func init() {
 
 	flag.Usage = func() {
 		fmt.Println("merge2pdf [options...] <output_file> <input_file> [<input_file>...]")
-		fmt.Println("<output_file> should be a PDF file and <input_file> can be PDF or image files. PDF files can have specific page numbers to merge.")
-		fmt.Println("Example: merge2pdf output.pdf input1.pdf input_pages.pdf~1,2,3 input3.jpg /path/to/input.png ...")
+		fmt.Println("<output_file> should be a PDF file and <input_file> can be PDF, image or directory. PDF files can have specific page numbers to merge.")
+		fmt.Println("Example: merge2pdf output.pdf input1.pdf input_pages.pdf~1,2,3 input3.jpg /path/to/dir ...")
 		flag.PrintDefaults()
 	}
 }

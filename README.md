@@ -30,8 +30,11 @@ merge2pdf output.pdf input1.pdf~1 input2.pdf input3.pdf~2,3,4
 # Merge multiple Images
 merge2pdf output.pdf image1.jpg image2.jpg path/to/other.png ...
 
-# Mixing up PDF, PDF Pages and Images
-merge2pdf output.pdf doc1.pdf~1,2 image1.jpg image2.png path/to/other.pdf ...
+# Merge all Images/PDFs of one or multiple directory
+merge2pdf output.pdf path/to/a/dir path/to/another ...
+
+# Mixing up PDF, PDF Pages, Images and directories
+merge2pdf output.pdf doc1.pdf~1,2 image1.jpg path/to/dir path/to/other.pdf ...
 ```
 
 ### Fine tuning Image pages
@@ -65,17 +68,23 @@ To see details of options,
 ```bash
 merge2pdf -h
 ```
+### Notes
+
+- `--size`, `--margin`, `--scale-width`, `--scale-height` will only effect images. 
+- PDF pages will inherit size and margin of source PDF
+- _Some_ `.tiff` files (e,g, compression level 4) may not work properly
+- Directory inputs will be searched for image/PDF files on first level only. Subdirectories will be skipped.
 
 ### Roadmap
 
 ✅ Merge multiple PDFs without loosing quality  
 ✅ Merge multiple PDFs with **selective pages**  
 ✅ Adding Images  
-✅ Mixing up Images and PDFs  
-◻️ Merge all (Image and PDF) files from directory  
+✅ Mixing up Images and PDFs    
+✅️ Merge all (Image and PDF) files from directory  
 ✅ Option to Resize Images to reduce filesize  
 ◻️ Option to Greyscale Images to reduce filesize  
-◻️ Option to set files and pages as JSON config to make usages from other app more convenient  
+◻️ Option to set files and pages as JSON config to make usages from other app more convenient    
 
 ### Contribute
 

@@ -12,7 +12,7 @@ import (
 	"github.com/unidoc/unidoc/pdf/creator"
 )
 
-type mergable interface {
+type Mergeable interface {
 	MergeTo(c *creator.Creator) error
 }
 
@@ -22,13 +22,42 @@ type source struct {
 }
 
 // Initiate new source file from input argument
-func NewSource(input string) mergable {
+func NewSource(input string) Mergeable {
 	fileInputParts := strings.Split(input, "~")
 
 	path := fileInputParts[0]
-	f, err := os.Open(fileInputParts[0])
+	var inputSource Mergeable
+
+	info, err := os.Stat(path)
 	if err != nil {
-		log.Fatal("Cannot read source file:", fileInputParts[0])
+		log.Fatal("Error:", err.Error())
+	}
+
+	switch mode := info.Mode(); {
+	case mode.IsDir():
+		inputSource = getMergeableDir(path)
+	case mode.IsRegular():
+		pages := []int{}
+		if len(fileInputParts) > 1 {
+			pages = parsePageNums(fileInputParts[1])
+		}
+		inputSource = getMergeableFile(path, pages)
+	}
+
+	return inputSource
+}
+
+func getMergeableDir(path string) Mergeable {
+	dir := DirSource{path: path}
+	dir.scanMergeables()
+
+	return dir
+}
+
+func getMergeableFile(path string, pages []int) Mergeable {
+	f, err := os.Open(path)
+	if err != nil {
+		log.Fatal("Cannot read source file:", path)
 	}
 
 	defer f.Close()
@@ -36,7 +65,7 @@ func NewSource(input string) mergable {
 	ext := filepath.Ext(f.Name())
 	mime, err := getMimeType(f)
 	if err != nil {
-		log.Fatal("Error in getting mime type of file:", fileInputParts[0])
+		log.Fatal("Error in getting mime type of file:", path)
 	}
 
 	sourceType, err := getFileType(mime, ext)
@@ -44,14 +73,9 @@ func NewSource(input string) mergable {
 		log.Fatal("Error : %s (%s)", err.Error(), path)
 	}
 
-	pages := []int{}
-	if len(fileInputParts) > 1 {
-		pages = parsePageNums(fileInputParts[1])
-	}
-
 	source := source{path, sourceType, mime, ext, pages}
 
-	var m mergable
+	var m Mergeable
 	switch sourceType {
 	case "image":
 		m = ImgSource{source}
@@ -77,7 +101,7 @@ func getFileType(mime, ext string) (string, error) {
 		return "image", nil
 	}
 
-	return "error", errors.New("Could not detect file type.")
+	return "error", errors.New("File type not acceptable. ")
 }
 
 func parsePageNums(pagesInput string) []int {
