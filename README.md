@@ -1,7 +1,19 @@
-# merge2pdf - Simplest tool for merging Images and PDFs into PDF
+# merge2pdf - Merge Image and PDF files into PDF 
 
-Merge Image and PDF files (optionally with selective pages) with lossless quality.
+Simplest command line tool for merging Images and PDFs. 
 It will not convert PDF pages (with texts, images, forms) into flat image, everything will remain as is.
+
+![merge2pdf - simplest tool for merging image and PDF files](extra/merge2pdf_banner.png?raw=true) 
+
+Highlights -
+
+- Very simple and easy to use 
+- Lossless quality by default. Option to adjust JPEG quality.
+- Can be merged only selective pages of PDF 
+- Supports wide range of image formats
+- Options to adjust size, margin and scaling of image
+- Supports directory as input (merges all Images/PDFs of directory)
+- Free and open source
 
 ### Install
 
