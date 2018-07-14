@@ -110,7 +110,12 @@ func setSize(img *creator.Image, c *creator.Creator) {
 	}
 
 	debugInfo(fmt.Sprintf("Created Page Size: %v", pageSize))
-	c.SetPageSize(pageSize)
+	if landscape {
+		c.SetPageSize(creator.PageSize{pageSize[1], pageSize[0]})
+	} else {
+		c.SetPageSize(pageSize)
+	}
+
 }
 
 // Set appropriate encoding for JPEG and TIFF
