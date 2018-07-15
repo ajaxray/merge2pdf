@@ -71,6 +71,10 @@ func setMargin(img *creator.Image, c *creator.Creator) {
 
 			pageMargin[i] = floatVal * creator.PPI
 		}
+		if len(pageMargin) != 4 {
+			log.Fatalln("Error: -m|--margin MUST be 4 comma separated int/float numbers. %s provided.", margin)
+		}
+
 		marginHasSet = true
 	}
 

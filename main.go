@@ -26,7 +26,7 @@ func init() {
 	flag.BoolVar(&scaleW, "scale-width", false, "Scale Image to page width. Only if --size specified.")
 	flag.BoolVar(&scaleH, "scale-height", false, "Scale Image to page height. Only if --size specified.")
 	flag.IntVar(&JPEGQuality, "jpeg-quality", 100, "Optimize JPEG Quality.")
-	flag.BoolVarP(&landscape, "landscape", "l", false, "Set page size in Landscape mode.")
+	flag.BoolVarP(&landscape, "landscape", "l", false, "Set image page size in Landscape mode.")
 	flag.BoolVarP(&verbose, "verbose", "v", false, "Display debug information.")
 	flag.BoolVarP(&version, "version", "V", false, "Display Version information.")
 
